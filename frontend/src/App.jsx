@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { LogIn } from 'lucide-react';
 import Home from './components/Home';
 import Signup from './components/auth/Signup';
+import Login from './components/auth/login';
 
 const appRouter = createBrowserRouter([
   {
@@ -10,7 +10,7 @@ const appRouter = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <LogIn />,
+    element: <Login />, // Use the Login component, not the icon
   },
   {
     path: '/signup',
