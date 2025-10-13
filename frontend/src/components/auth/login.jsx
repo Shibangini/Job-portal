@@ -2,17 +2,24 @@ import React, { useState } from 'react'
 import Navbar from '../shared/Navbar'
 import { Label } from '@radix-ui/react-label'
 import { Input } from "@/components/ui/input";
-import { RadioGroup} from '@/components/ui/radio-group';
+import { RadioGroup } from '@/components/ui/radio-group';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { toast } from "sonner";
-import { LogIn } from 'lucide-react';
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setLoading } from "../../redux/authSlice";
+import { Loader2 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+
 
 const USER_API_END_POINT = "http://localhost:8000/api/v1/user";
 
 
 const Login = () => {
     const navigate = useNavigate();
+    const { loading } = useSelector((store) => store.auth);
+    const dispatch = useDispatch();
     const [input, setInput] = useState({
         email: "",
         password: "",
@@ -28,6 +35,7 @@ const Login = () => {
         e.preventDefault();
         setErrorMsg("");
         try {
+            dispatch(setLoading(true));
             const res = await axios.post(
                 `${USER_API_END_POINT}/login`, input,
                 {
@@ -50,6 +58,8 @@ const Login = () => {
                 toast.error(msg);
             } catch (e) {
                 alert(msg);
+            } finally {
+                dispatch(setLoading(false));
             }
         }
     };
@@ -97,7 +107,7 @@ const Login = () => {
                                     className='cursor-pointer h-4 w-4 border border-black'
                                     id="r1"
                                 />
-                                    <Label htmlFor="r1" className="font-bold">Job Seeker</Label>
+                                <Label htmlFor="r1" className="font-bold">Job Seeker</Label>
                             </div>
                             <div className="flex items-center gap-3">
                                 <input
@@ -109,12 +119,21 @@ const Login = () => {
                                     className='cursor-pointer h-4 w-4 border border-black'
                                     id="r2"
                                 />
-                                    <Label htmlFor="r2" className="font-bold">Recruiter</Label>
+                                <Label htmlFor="r2" className="font-bold">Recruiter</Label>
                             </div>
                         </RadioGroup>
                     </div>
-                    <button type="submit" className="w-full my-4 bg-black text-white rounded py-2 hover:bg-[#272628] transition-colors">Login</button>
-                    <span className='text-sm'>Don't have an account? <Link to ="/signup" className='text-blue-600'>Sign Up</Link></span>
+                    <div>
+                        {loading ? (
+                                    <Button className="w-full my-4 bg-black text-white rounded py-2 hover:bg-[#272628] transition-colors flex items-center justify-center" disabled>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" /> Please wait
+                            </Button>
+                        ) : (
+                            <Button type="submit" className="w-full my-4 bg-black text-white rounded py-2 hover:bg-[#272628] transition-colors">Login</Button>
+                        )}
+                    </div>
+
+                    <span className='text-sm'>Don't have an account? <Link to="/signup" className='text-blue-600'>Sign Up</Link></span>
                 </form>
             </div >
         </div>

@@ -1,9 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Navbar from '../shared/Navbar'
 import { Label } from '@radix-ui/react-label'
 import { Input } from "@/components/ui/input";
 import { RadioGroup } from '@/components/ui/radio-group';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLoading } from '../../redux/authSlice';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -19,18 +23,21 @@ const Signup = () => {
         role: "",
         file: ""
     });
-
+    const dispatch = useDispatch();
+    const { loading } = useSelector((store) => store.auth);
     const navigate = useNavigate();
 
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
-    }
+    };
 
     const changeFileHandler = (e) => {
         setInput({ ...input, file: e.target.files?.[0] });
-    }
+    };
+
     const submitHandler = async (e) => {
         e.preventDefault();
+        dispatch(setLoading(true));
         const formData = new FormData();
         formData.append("fullname", input.fullname);
         formData.append("email", input.email);
@@ -63,8 +70,10 @@ const Signup = () => {
             } catch (e) {
                 alert(msg);
             }
+        } finally {
+            dispatch(setLoading(false));
         }
-    }
+    };
     return (
         <div>
             <Navbar />
@@ -149,7 +158,13 @@ const Signup = () => {
                             </div>
                         </RadioGroup>
                     </div>
-                    <button type="submit" className="w-full my-4 bg-black text-white rounded py-2 hover:bg-[#272628] transition-colors">SignUp</button>
+                    {loading ? (
+                        <Button className="w-full my-4 bg-black text-white rounded py-2 hover:bg-[#272628] transition-colors flex items-center justify-center" disabled>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" /> Please wait
+                        </Button>
+                    ) : (
+                        <Button type="submit" className="w-full my-4 bg-black text-white rounded py-2 hover:bg-[#272628] transition-colors">SignUp</Button>
+                    )}
                     <span className='text-sm'>Already have an account? <Link to="/login" className='text-blue-600'>Login</Link></span>
                 </form>
             </div >
