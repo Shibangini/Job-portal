@@ -3,8 +3,11 @@ import { Button } from './ui/button'
 import { Bookmark } from 'lucide-react'
 import { Avatar, AvatarImage } from './ui/avatar'
 import { Badge } from './ui/badge'
+import { useNavigate } from 'react-router-dom'
 
 const Job = () => {
+    const navigate = useNavigate();
+    const JobId = "ghjkli091"; 
     return (
         <div className='p-5 rounded-md shadow-xl bg-white border border-gray 100 cursor-pointer hover:shadow-2xl transition-shadow'>
             <div className='flex justify-between items-center'>
@@ -14,7 +17,7 @@ const Job = () => {
             <div className='flex items-center gap-2 my-2'>
                 <Button className='p-6' variant='outline' size='icon'>
                     <Avatar>
-                        <AvatarImage src="https://graphicsfamily.com/wp-content/uploads/edd/2021/12/Tech-Logo-scaled.jpg"></AvatarImage>
+                        <AvatarImage src="https://www.siegelgale.com/app/uploads/2021/10/SGCOM_Blog_211018.png"></AvatarImage>
                     </Avatar>
                 </Button>
                 <div>
@@ -35,7 +38,7 @@ const Job = () => {
                 <Badge className={'text-[#7209b7] font-bold'} variant='ghost'>24 LPA</Badge>
             </div>
             <div className='flex items-center gap-4 mt-4'>
-                <Button variant="outline">Details</Button>
+                <Button onClick={() => navigate(`/description/${JobId}`)} variant="outline">Details</Button>
                 <Button className='bg-[#7209b7] text-white'>Save for later</Button>
             </div>
         </div>

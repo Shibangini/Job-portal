@@ -17,14 +17,26 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:5174",
+  "http://127.0.0.1:5174",
+];
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: (origin, callback) => {
+    // allow server-to-server tools (no origin) and known frontend dev origins
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  },
   credentials: true,
 };
 app.use(cors(corsOptions));
 
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8000;
 
 // API routes
 app.use("/api/v1/user", userRoute);

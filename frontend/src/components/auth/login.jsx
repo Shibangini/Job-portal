@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from '../shared/Navbar'
 import { Label } from '@radix-ui/react-label'
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { setLoading } from "../../redux/authSlice";
+import { setLoading, setUser } from "../../redux/authSlice";
 import { Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
@@ -27,6 +27,11 @@ const Login = () => {
     });
     const [errorMsg, setErrorMsg] = useState("");
 
+    useEffect(() => {
+        // Prevent stale global loading state from keeping auth button disabled.
+        dispatch(setLoading(false));
+    }, [dispatch]);
+
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
     };
@@ -44,6 +49,7 @@ const Login = () => {
                 }
             );
             if (res.data.success) {
+                dispatch(setUser(res.data.user));
                 navigate('/');
                 toast.success(res.data.message);
             } else {
@@ -61,6 +67,8 @@ const Login = () => {
             } finally {
                 dispatch(setLoading(false));
             }
+        } finally {
+            dispatch(setLoading(false));
         }
     };
 
@@ -124,13 +132,14 @@ const Login = () => {
                         </RadioGroup>
                     </div>
                     <div>
-                        {loading ? (
-                                    <Button className="w-full my-4 bg-black text-white rounded py-2 hover:bg-[#272628] transition-colors flex items-center justify-center" disabled>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" /> Please wait
-                            </Button>
-                        ) : (
-                            <Button type="submit" className="w-full my-4 bg-black text-white rounded py-2 hover:bg-[#272628] transition-colors">Login</Button>
-                        )}
+                        {
+                            loading ? (
+                                <Button className="w-full my-4 bg-black text-white rounded py-2 hover:bg-[#272628] transition-colors flex items-center justify-center" disabled>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" /> Please wait
+                                </Button>
+                            ) : (
+                                <Button type="submit" className="w-full my-4 bg-black text-white rounded py-2 hover:bg-[#272628] transition-colors">Login</Button>
+                            )}
                     </div>
 
                     <span className='text-sm'>Don't have an account? <Link to="/signup" className='text-blue-600'>Sign Up</Link></span>

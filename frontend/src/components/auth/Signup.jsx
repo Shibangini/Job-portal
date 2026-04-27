@@ -27,6 +27,11 @@ const Signup = () => {
     const { loading } = useSelector((store) => store.auth);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        // Prevent stale global loading state from keeping auth button disabled.
+        dispatch(setLoading(false));
+    }, [dispatch]);
+
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
     };

@@ -19,7 +19,8 @@ const isAuthenticated = async (req, res, next) => {
         req.id = decoded.userId;
         next();
     } catch (error) {
-        console.log(error);
+    console.log(error);
+    return res.status(401).json({ message: 'Authentication failed', success: false });
     }
 }
 export default isAuthenticated; 
