@@ -4,23 +4,47 @@ import { Button } from './ui/button'
 import { useParams } from 'react-router-dom'
 import { useEffect } from 'react'
 import axios from 'axios'
-import { JOB_API_END_POINT } from '@/utils/constant'
+import { APPLICATION_API_END_POINT, JOB_API_END_POINT } from '@/utils/constant'
 import { useDispatch, useSelector } from 'react-redux'
-import { setSingleJob } from '@/redux/jobSlice'
+import { setSingleJob, setAllJobs } from '@/redux/jobSlice'
+import { toast } from 'sonner'
+import { useState } from 'react'
 
 
 const JobDescription = () => {
     const params = useParams();
     const jobId = params.id;
     const dispatch = useDispatch();
-    const {singleJob}=useSelector((store) => store.job);
+    const {singleJob, jobs} = useSelector((store) => store.job);
     const { user } = useSelector((store) => store.auth);
+    // Check if user already applied by looking for their ID in applicants array
+    const isInitiallyApplied = singleJob?.applicants?.some(application => application.applicant?._id === user?._id || application.applicant === user?._id) || false;
+    const [isApplied, setIsApplied] = useState(isInitiallyApplied);
+    
+    const applyJobHandler = async () => {
+        try{
+            const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobId}`, {withCredentials:true});
+            console.log(res.data);
+                if (res.data.success) {
+                    setIsApplied(true); // update the local state
+                    const updateSingleJob = { ...singleJob, applicants: [...(singleJob?.applicants || []), { applicant: user?._id, _id: res.data.newApplication?._id || Date.now().toString() }] };
+                    dispatch(setSingleJob(updateSingleJob)); // update single job in store
 
-    // Check if user already applied by looking for their ID in applications array
-    const isApplied = singleJob?.applications?.some(app => {
-        const appId = typeof app === 'string' ? app : app?.applicantId || app?._id;
-        return appId === user?._id;
-    });
+                    // Also update the jobs list so other components reflect the change
+                    if (Array.isArray(jobs)) {
+                        const updatedJobs = jobs.map(j => j._id === jobId ? { ...j, applicants: [...(j.applicants || []), { applicant: user?._id, _id: res.data.newApplication?._id || Date.now().toString() }] } : j);
+                        dispatch(setAllJobs(updatedJobs));
+                    }
+
+                    toast.success(res.data.message)
+                }
+        }
+        catch(error){
+            console.log(error);
+             toast.error(error.response?.data?.message || 'Failed to apply for the job. Please try again later.');
+
+        }
+    }
 
     useEffect(() => {
         const fetchSingleJob = async () => {
@@ -30,6 +54,7 @@ const JobDescription = () => {
                     console.log('Fetched jobs count:', Array.isArray(res.data.jobs) ? res.data.jobs.length : 0);
                     console.log('Fetched job ids:', res.data.jobs?.map(j => j._id));
                     dispatch(setSingleJob(res.data.job));
+                    setIsApplied(res.data.job.applicants?.some(application => application.applicant?._id === user?._id || application.applicant === user?._id) || false); // Set applied state based on fetched job data
                 }
             } catch (error) {
                 console.log(error);
@@ -51,6 +76,7 @@ const JobDescription = () => {
                     </div>
                 </div>
                 <Button
+                onClick={isApplied ? null : applyJobHandler}
                     disabled={isApplied}
                     className={`rounded-lg ${isApplied ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#7209b7] hover:bg-[#5c007a]'} font-bold text-white`}>
                     {isApplied ? 'Applied' : 'Apply Now'}
@@ -63,7 +89,7 @@ const JobDescription = () => {
                 <h1 className='font-bold my-1'>Description: <span className='pl-4 font-normal text-gray-800'>{singleJob?.description}</span></h1>
                 <h1 className='font-bold my-1'>Experience: <span className='pl-4 font-normal text-gray-800'>{singleJob?.experience}</span></h1>
                 <h1 className='font-bold my-1'>Salary: <span className='pl-4 font-normal text-gray-800'>{singleJob?.salary}</span></h1>
-                <h1 className='font-bold my-1'>Total Applicants: <span className='pl-4 font-normal text-gray-800'>{singleJob?.applications?.length}</span></h1>
+                <h1 className='font-bold my-1'>Total Applicants: <span className='pl-4 font-normal text-gray-800'>{singleJob?.applicants?.length}</span></h1>
                 <h1 className='font-bold my-1'>Posted Date: <span className='pl-4 font-normal text-gray-800'>{singleJob?.createdAt.split("T")[0] }</span></h1>
             </div>
         </div>
