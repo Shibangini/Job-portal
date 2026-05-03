@@ -22,7 +22,7 @@ const Job = ({ job }) => {
             <div className='flex items-center gap-2 my-2'>
                 <Button className='p-6' variant='outline' size='icon'>
                     <Avatar>
-                        <AvatarImage src="https://www.siegelgale.com/app/uploads/2021/10/SGCOM_Blog_211018.png"></AvatarImage>
+                        <AvatarImage src={job?.company?.logo || "https://www.freepnglogos.com/uploads/company-logo-png/company-logo-transparent-png-19.png"}></AvatarImage>
                     </Avatar>
                 </Button>
                 <div>

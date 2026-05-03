@@ -29,7 +29,7 @@ export const postJob = async (req, res) => {
             title,
             description,
             requirements:requirements.split(','),
-            salary:Number(salary),
+            salary,
             location,
             jobType,
             experience,
@@ -44,6 +44,11 @@ export const postJob = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: 'Error posting job',
+            success: false,
+            error: error.message
+        });
     }
 };
 
@@ -73,6 +78,11 @@ export const getAllJobs = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: 'Error fetching jobs',
+            success: false,
+            error: error.message
+        });
     }
 }
 
@@ -94,6 +104,11 @@ export const getJobById = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: 'Error fetching job',
+            success: false,
+            error: error.message
+        });
     }
 }
 
@@ -101,13 +116,11 @@ export const getJobById = async (req, res) => {
 export const getAdminJobs = async (req, res) => {
     try {
         const adminId = req.id;
-        const jobs = await Job.find({ created_by: adminId });
-        if (!jobs) {
-            return res.status(404).json({
-                message: 'No jobs found',
-                success: false
-            })
-        };
+        console.log('Getting jobs for admin ID:', adminId);
+        const jobs = await Job.find({ created_by: adminId }).populate({
+            path: "company"
+        });
+        console.log('Found jobs:', jobs);
         return res.status(200).json({
             message: 'Jobs fetched successfully',
             success: true,
@@ -115,5 +128,10 @@ export const getAdminJobs = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: 'Error fetching admin jobs',
+            success: false,
+            error: error.message
+        });
     }
 }; 
