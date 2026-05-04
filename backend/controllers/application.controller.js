@@ -114,35 +114,71 @@ export const getApplicants = async (req, res) => {
         });
     }
 };
-    export const updateStatus = async (req, res) => {
-        try {
-            const { status } = req.body;
-            const applicationId = req.params.id;
-            if (!status) {
-                return res.status(400).json({
-                    message: 'Status not found',
-                    success: false
-                });
-            }
-            const application = await Application.findById(applicationId);
-            if (!application) {
-                return res.status(404).json({
-                    message: 'Application not found',
-                    success: false
-                });
-            }
-            // Update status
-            application.status = status.toLowerCase();
-            await application.save();
-            return res.status(200).json({
-                message: 'Status updated successfully',
-                success: true
-            });
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                message: 'Internal server error',
+export const serveApplicantResume = async (req, res) => {
+    try {
+        const applicationId = req.params.applicationId;
+        const application = await Application.findById(applicationId).populate('applicant');
+        
+        if (!application || !application.applicant || !application.applicant.profile?.resume) {
+            return res.status(404).json({ message: 'Resume not found', success: false });
+        }
+
+        const resumeUrl = application.applicant.profile.resume;
+        console.log('Fetching applicant resume from:', resumeUrl);
+
+        // Fetch the file from Cloudinary
+        const remoteRes = await fetch(resumeUrl);
+        if (!remoteRes.ok) {
+            console.error('Failed to fetch resume:', remoteRes.status);
+            return res.status(502).json({ message: 'Failed to fetch resume', success: false });
+        }
+
+        // Set headers so browser opens inline instead of downloading
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; filename="resume.pdf"');
+        const contentLength = remoteRes.headers.get('content-length');
+        if (contentLength) {
+            res.setHeader('Content-Length', contentLength);
+        }
+
+        // Convert web stream to buffer and send
+        const buffer = await remoteRes.arrayBuffer();
+        res.end(Buffer.from(buffer));
+    } catch (error) {
+        console.error('serveApplicantResume error:', error);
+        return res.status(500).json({ message: 'Internal server error', success: false });
+    }
+};
+
+export const updateStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+        const applicationId = req.params.id;
+        if (!status) {
+            return res.status(400).json({
+                message: 'Status not found',
                 success: false
             });
         }
-    };
+        const application = await Application.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({
+                message: 'Application not found',
+                success: false
+            });
+        }
+        // Update status
+        application.status = status.toLowerCase();
+        await application.save();
+        return res.status(200).json({
+            message: 'Status updated successfully',
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: 'Internal server error',
+            success: false
+        });
+    }
+};
