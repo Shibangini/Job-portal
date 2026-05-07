@@ -160,6 +160,26 @@ export const updateStatus = async (req, res) => {
                 success: false
             });
         }
+
+        const normalizedStatus = String(status).toLowerCase().trim();
+        const statusMap = {
+            accept: 'accepted',
+            accepted: 'accepted',
+            shortlist: 'accepted',
+            hold: 'hold',
+            reject: 'rejected',
+            rejected: 'rejected',
+            pending: 'pending'
+        };
+
+        const mappedStatus = statusMap[normalizedStatus];
+        if (!mappedStatus) {
+            return res.status(400).json({
+                message: 'Invalid status value',
+                success: false
+            });
+        }
+
         const application = await Application.findById(applicationId);
         if (!application) {
             return res.status(404).json({
@@ -168,7 +188,7 @@ export const updateStatus = async (req, res) => {
             });
         }
         // Update status
-        application.status = status.toLowerCase();
+        application.status = mappedStatus;
         await application.save();
         return res.status(200).json({
             message: 'Status updated successfully',

@@ -15,12 +15,12 @@ const Home = () => {
   const navigate = useNavigate();
   useEffect(() => {
     if(user && user?.role === 'recruiter'){
-      navigate('/admin/companies');
+      navigate('/recruiter/dashboard');
     }
-  }, []);
+  }, [user, navigate]);
 
   return (
-    <div>
+    <div className='min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(248,103,2,0.14),_transparent_28%),linear-gradient(180deg,_#fffaf7_0%,_#ffffff_45%,_#f8fafc_100%)]'>
         <Navbar/>
         <HeroSection/>
         <CategoryCarousel/>

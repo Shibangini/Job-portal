@@ -19,12 +19,12 @@ const adminjobs = () => {
 
   }, [input, dispatch]);
   return (
-    <div>
+    <div className='min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(248,103,2,0.14),_transparent_28%),linear-gradient(180deg,_#fffaf7_0%,_#ffffff_45%,_#f8fafc_100%)]'>
       <Navbar />
       <div className='max-w-6xl mx-auto my-10'>
         <div className='flex items-center justify-between my-5'>
           <Input
-            className='w-fit'
+            className='w-fit bg-white shadow-sm border-gray-200'
             placeholder='Filter by name, role'
             onChange={(e) => setInput(e.target.value)}
           />
@@ -32,7 +32,9 @@ const adminjobs = () => {
             New Jobs
           </Button>
         </div>
-        <AdminJobsTable />
+        <div className='rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60'>
+          <AdminJobsTable />
+        </div>
       </div>
     </div>
   )
