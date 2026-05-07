@@ -19,20 +19,23 @@ const companies = () => {
 
     }, [input, dispatch]);
     return (
-        <div>
+        <div className='min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(248,103,2,0.14),_transparent_28%),linear-gradient(180deg,_#fffaf7_0%,_#ffffff_45%,_#f8fafc_100%)]'>
             <Navbar />
             <div className='max-w-6xl mx-auto my-10'>
                 <div className='flex items-center justify-between my-5'>
                     <Input
-                        className='w-fit'
+                        className='w-fit bg-white shadow-sm border-gray-200 '
                         placeholder='Filter by name'
                         onChange={(e) => setInput(e.target.value)}
+
                     />
                     <Button className='bg-black text-white hover:bg-black/80' onClick={() => navigate('/admin/companies/create')}>
                         New Company
                     </Button>
                 </div>
-                <CompaniesTable />
+                <div className='rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60'>
+                    <CompaniesTable />
+                </div>
             </div>
         </div>
     )

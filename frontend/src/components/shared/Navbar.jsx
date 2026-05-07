@@ -1,9 +1,10 @@
-import { Popover, PopoverTrigger, PopoverContent } from '@radix-ui/react-popover'
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import React from 'react'
+import logo from '@/assets/logo.png'
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User2, LogOut } from "lucide-react";
-import { Link, useNavigate } from 'react-router-dom';
+import { User2, LogOut, ChevronDown, Bookmark } from "lucide-react";
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from '@/redux/authSlice';
 import { USER_API_END_POINT } from '@/utils/constant';
@@ -12,8 +13,12 @@ import { toast } from 'sonner';
 
 const Navbar = () => {
     const { user } = useSelector((store) => store.auth);
+    const { savedJobs = [] } = useSelector((store) => store.job || {});
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const navClassName = ({ isActive }) =>
+        `rounded-md px-3 py-1.5 transition ${isActive ? 'bg-[#ffe3e3] text-red-600 font-bold' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'}`;
 
     const logoutHandler = async () => {
         try {
@@ -34,21 +39,30 @@ const Navbar = () => {
         <div className='bg-white'>
             <div className='flex items-center justify-between mx-auto max-w-7xl h-16'>
                 <div>
-                    <h1 className='text-2xl font-bold'>JOB <span className='text-[#F83002]'>Portal</span></h1>
+                    <div className='flex items-center gap-3'>
+                        <div className='flex h-10 w-10 items-center justify-center rounded-2xl overflow-hidden bg-white shadow-sm'>
+                            <img src={logo} alt="JobFlow logo" className="h-10 w-10 object-contain" />
+                        </div>
+                        <div className='leading-tight'>
+                            <h1 className='text-2xl font- Space Grotesk font-black italic tracking-tight text-slate-900'>Job<span className='text-red-600'>Verse</span></h1>
+                            <p className='text-[11px] font-medium uppercase tracking-[0.24em] text-slate-400'>DISCOVER OPPORTUNITIES. BUILD FUTURES </p>
+                        </div>
+                    </div>
                 </div>
                 <div className='flex items-center gap-12'>
                     <ul className='flex font-medium items-center gap-5'>
                         {
                             user && user?.role === 'recruiter' ? (
                                 <>
-                                    <li><Link to="/admin/companies">Companies</Link></li>
-                                    <li><Link to="/admin/jobs">Jobs</Link></li>
+                                    <li><NavLink to="/recruiter/dashboard" className={navClassName}>Dashboard</NavLink></li>
+                                    <li><NavLink to="/admin/companies" className={navClassName}>Companies</NavLink></li>
+                                    <li><NavLink to="/admin/jobs" className={navClassName}>Jobs</NavLink></li>
                                 </>
                             ) : (
                                 <>
-                                    <li><Link to="/">Home</Link></li>
-                                    <li><Link to="/jobs">Jobs</Link></li>
-                                    <li><Link to="/browse">Browse</Link></li>
+                                    <li><NavLink to="/" className={navClassName}>Home</NavLink></li>
+                                    <li><NavLink to="/jobs" className={navClassName}>Jobs</NavLink></li>
+                                    <li><NavLink to="/browse" className={navClassName}>Browse</NavLink></li>
                                 </>
                             )
                         }
@@ -66,34 +80,62 @@ const Navbar = () => {
                         ) : (
                             <Popover>
                                 <PopoverTrigger asChild>
-                                    <Avatar className='cursor-pointer' >
-                                        <AvatarImage src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"} alt="@shadcn" />
-                                    </Avatar>
+                                    <button
+                                        type="button"
+                                        className='flex items-center gap-2 rounded-full border border-slate-200 bg-white px-1.5 py-1 shadow-sm transition hover:border-slate-300 hover:shadow'
+                                    >
+                                        <Avatar className='h-9 w-9 cursor-pointer'>
+                                            <AvatarImage src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"} alt="profile" />
+                                        </Avatar>
+                                        <ChevronDown className='h-4 w-4 text-slate-600' />
+                                    </button>
                                 </PopoverTrigger>
-                                <PopoverContent className='w-80'>
-                                    <div>
-                                        <div className='flex gap-2 space-y-2'>
-                                            <Avatar className='cursor-pointer' >
+                                <PopoverContent align='end' sideOffset={10} className='w-72 rounded-xl border-slate-200 bg-white p-0 shadow-xl'>
+                                    <div className='border-b border-slate-100 px-4 py-3'>
+                                        <div className='flex items-center gap-3'>
+                                            <Avatar className='h-11 w-11'>
                                                 <AvatarImage src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"} alt="profile" />
                                             </Avatar>
-                                            <div>
-                                                <h4 className='font-medium'>{user?.fullname}</h4>
+                                            <div className='min-w-0'>
+                                                <h4 className='truncate text-sm font-semibold text-slate-900'>{user?.fullname}</h4>
+                                                <p className='truncate text-xs text-slate-500'>{user?.email}</p>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='flex flex-col my-2 text-grey-600'>
+                                    <div className='p-2'>
                                         {
                                             user && user.role === 'student' && (
-                                                <div className='flex w-fit items-center gap-2 cursor-pointer'>
-                                                    <User2 />
-                                                    <Button variant="link"> <Link to="/profile">View Profile</Link></Button>
-                                                </div>
+                                                <>
+                                                    <Link
+                                                        to="/profile"
+                                                        className='flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900'
+                                                    >
+                                                        <User2 className='h-4 w-4' />
+                                                        <span>View Profile</span>
+                                                    </Link>
+                                                    <Link
+                                                        to="/saved-jobs"
+                                                        className='flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900'
+                                                    >
+                                                        <span className='flex items-center gap-2'>
+                                                            <Bookmark className='h-4 w-4' />
+                                                            <span>Saved Jobs</span>
+                                                        </span>
+                                                        <span className='rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700'>
+                                                            {Array.isArray(savedJobs) ? savedJobs.length : 0}
+                                                        </span>
+                                                    </Link>
+                                                </>
                                             )
                                         }
-                                        <div className='flex w-fit items-center gap-2 cursor-pointer'>
-                                            <LogOut />
-                                            <Button onClick={logoutHandler} variant="link">Logout</Button>
-                                        </div>
+                                        <button
+                                            type='button'
+                                            onClick={logoutHandler}
+                                            className='flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-rose-600 transition hover:bg-rose-50'
+                                        >
+                                            <LogOut className='h-4 w-4' />
+                                            <span>Logout</span>
+                                        </button>
                                     </div>
                                 </PopoverContent>
                             </Popover>

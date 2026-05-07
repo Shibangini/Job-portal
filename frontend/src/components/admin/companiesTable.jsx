@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Table, TableCaption, TableHead, TableHeader, TableRow, TableBody, TableCell } from "../ui/table"
 import { Avatar, AvatarImage } from '../ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { MoreHorizontal, Edit2 } from 'lucide-react'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 const companiesTable = () => {
     const { companies = [], searchCompanyByText = "" } = useSelector((store) => store.company) || {};
+    const navigate = useNavigate();
     const filteredCompanies = companies.filter((company) => {
+
         if (!searchCompanyByText) {
             return true;
         }
@@ -46,8 +49,8 @@ const companiesTable = () => {
                                     <PopoverTrigger>
                                         <MoreHorizontal />
                                     </PopoverTrigger>
-                                    <PopoverContent className='w-32'>
-                                        <div className='flex items-center gap-2 w-fit cursor-pointer'>
+                                    <PopoverContent side="right" align="center" sideOffset={6} className='w-32'>
+                                        <div onClick={() => navigate(`/admin/companies/${company._id}`)} className='flex items-center gap-2 w-fit cursor-pointer'>
                                             <Edit2 className='w-4' />
                                             <span>Edit</span>
                                         </div>

@@ -8,8 +8,10 @@ import { Badge } from './ui/badge'
 import { Label } from './ui/label'
 import AppliedJobTable from './AppliedJobTable'
 import UpdateProfileDialog from './UpdateProfileDialog'
+import useGetAppliedJobs from '@/hooks/useGetAppliedJobs'
 
 const profile = () => {
+  useGetAppliedJobs();
   const [open, setOpen] = useState(false);
   const { user } = useSelector(store => store.auth);
   
@@ -17,7 +19,7 @@ const profile = () => {
   const isResumeAvailable = !!user?.profile?.resume;
 
   return (
-    <div>
+    <div className='min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(248,103,2,0.14),_transparent_28%),linear-gradient(180deg,_#fffaf7_0%,_#ffffff_45%,_#f8fafc_100%)]'>
       <Navbar />
       <div className='max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl my-5 p-8'>
         <div className='flex justify-between'>

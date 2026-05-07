@@ -10,12 +10,14 @@ import { toast } from 'sonner'
 import { useDispatch, useSelector } from 'react-redux'
 import { setSingleCompany } from '@/redux/companySlice'
 import { COMPANY_API_END_POINT } from '@/utils/constant'
+import useGetCompanyById from '@/hooks/useGetCompanyById'
 
 const companySetup = () => {
+    const params = useParams();
+    useGetCompanyById(params.id);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { singleCompany } = useSelector((store) => store.company);
-    const params = useParams();
     const [loading, setLoading] = useState(false);
     const [input, setInput] = useState({
         name: "",
